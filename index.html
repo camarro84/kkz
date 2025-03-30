@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Разбор Bash Скрипта</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Разбор Bash Скрипта</h1>
+    <div class="section">
+      <h2>1. Заголовок меню</h2>
+      <p>Этот код выводит разделительные линии и заголовок для меню выбора:</p>
+      <pre>
+echo "============================="
+echo "==== Co chcesz zrobić? ======"
+echo "============================="
+      </pre>
+      <p>Здесь используется команда <code>echo</code> для вывода текста в терминал.</p>
+    </div>
+
+    <div class="section">
+      <h2>2. Меню выбора с <code>select</code></h2>
+      <p><code>select</code> используется для создания простого меню, где пользователю предлагается выбрать один из вариантов:</p>
+      <pre>
+select opcja in "Tworzenie użytkowników" "Zarządzanie plikami" "Wyjście"; do
+</pre>
+      <p>Выбранный вариант сохраняется в переменной <code>$opcja</code>.</p>
+      <button class="code-button" onclick="toggleCode('code1')">Показать код выбора</button>
+      <div id="code1" class="code-container">
+        <pre>
+case $opcja in
+  "Tworzenie użytkowników")
+    ...
+  "Wyjście")
+    ...
+  *)
+    echo "Неопознанный выбор"
+  ;;
+esac
+        </pre>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3. Создание пользователей</h2>
+      <p>Этот блок выполняется, если пользователь выбрал <code>Tworzenie użytkowników</code>. Код запрашивает информацию о пользователях, группе и оболочке:</p>
+      <pre>
+echo "Podaj nazwę użytkowników (np. user):"
+read nazwa_uzytkownika
+echo "Ilu użytkowników utworzyć?"
+read liczba
+echo "Jaką powłokę przypisać? (np. /bin/bash)"
+read powloka
+echo "Podaj nazwę grupy:"
+read grupa
+      </pre>
+      <p>Используется команда <code>read</code> для получения данных от пользователя, которые затем сохраняются в переменные.</p>
+      <button class="code-button" onclick="toggleCode('code2')">Показать код создания пользователей</button>
+      <div id="code2" class="code-container">
+        <pre>
+for ((i=1; i<=liczba; i++)); do
+  user="${nazwa_uzytkownika}${i}"
+  useradd -m -s "$powloka" -g "$grupa" "$user"
+  echo "Utworzono użytkownika: $user"
+done
+        </pre>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4. Управление файлами</h2>
+      <p>Если пользователь выбрал <code>Zarządzanie plikami</code>, выполняется поиск файлов с заданным расширением:</p>
+      <pre>
+echo "Podaj rozszerzenie plików do wyszukania (np. txt):"
+read rozszerzenie
+znalezione=()
+for plik in *.$rozszerzenie; do
+  if [ -f "$plik" ]; then
+    znalezione+=("$plik")
+  fi
+done
+      </pre>
+      <p>Поиск выполняется с использованием расширения, введённого пользователем. Если файлы найдены, они добавляются в массив <code>znalezione</code>.</p>
+      <button class="code-button" onclick="toggleCode('code3')">Показать код управления файлами</button>
+      <div id="code3" class="code-container">
+        <pre>
+if [ ${#znalezione[@]} -eq 0 ]; then
+  echo "Nie znaleziono plików"
+else
+  for plik in "${znalezione[@]}"; do
+    echo "$plik"
+  done
+  echo "Jakie nadać prawa znalezionym plikom?"
+  read prawa
+  chmod "$prawa" *.$rozszerzenie
+  echo "Jakiego ustawić właściciela i grupę?"
+  read wlasciciel_grupa
+  chown "$wlasciciel_grupa" *.$rozszerzenie
+fi
+        </pre>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>5. Выход из программы</h2>
+      <p>Этот код выполняется, если пользователь выбрал опцию "Wyjście". Он спрашивает, хочет ли пользователь выйти из программы:</p>
+      <pre>
+"Wyjście")
+  echo "Czy na pewno chcesz wyjść? (T/N)"
+  read decyzja
+  if [ "$decyzja" = "T" ]; then
+    exit 0
+  fi
+;;
+      </pre>
+    </div>
+  </div>
+
+  <script src="./js/script.js"></script>
+</body>
+</html>
